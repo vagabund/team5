@@ -1,9 +1,8 @@
 from players import Player, players
 import pandas as pd
+from constants import PLAYED_VARS
 
-PLAYED_VARS = (1, 4, 7, 11, 15, 22, 24, 27, 30, 33, 36, 40)
-
-def duel_score(p1: Player, p2: Player, played_vars: tuple):
+def duel(p1: Player, p2: Player, played_vars: tuple):
     played = set(played_vars)
     s1, s2 = set(p1.predict), set(p2.predict)
     u1 = s1 - s2
@@ -32,7 +31,7 @@ def round_robin(players: list, played_vars: tuple):
                 continue
             if p1.team == p2.team:
                 continue
-            s1, s2 = duel_score(p1, p2, played_vars)
+            s1, s2 = duel(p1, p2, played_vars)
             st1 = stats[p1.name]
             st2 = stats[p2.name]
 

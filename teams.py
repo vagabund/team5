@@ -17,3 +17,7 @@ stalevary = Team("Сталевары")
 monaco = Team("Монако")
 lucky_7 = Team("Lucky Sevens")
 corleone = Team("Корлеоне Атлетик")
+legion = Team("Легіон")
+
+teams = [lrsch, avtobus, seldon, pentagon, hati, radzi, pro_vercelli, san_marino, supernova, orion, qed, stalevary,
+         monaco, lucky_7, corleone, legion]
