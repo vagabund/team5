@@ -8,9 +8,9 @@ class MatchReferee:
     def __init__(self):
         pass
 
-    def parse_fixtures(self, path: str | Path, num_matches: int = 8):
+    def parse_fixtures(self):
         fixtures = []
-        path = Path(path)
+        path = Path("input.txt")
 
         with path.open("r", encoding="cp1251") as f:
             for line in f:
@@ -31,12 +31,12 @@ class MatchReferee:
                         if home == i.name and away == j.name:
                             fixtures.append((i.name, j.name))
 
-                if len(fixtures) == num_matches:
+                if len(fixtures) == 8:
                     break
         return fixtures
 
-    def parse_lineups_positions(self, path: str | Path, num_matches: int = 8):
-        path = Path(path)
+    def parse_lineups_positions(self):
+        path = Path("input.txt")
 
         with path.open("r", encoding="cp1251") as f:
             lines = [line.rstrip() for line in f]
@@ -46,7 +46,7 @@ class MatchReferee:
         while idx < len(lines):
             if "-" in lines[idx]:
                 fixtures_seen += 1
-            if fixtures_seen == num_matches and lines[idx].strip() == "":
+            if fixtures_seen == 8 and lines[idx].strip() == "":
                 idx += 1
                 break
             idx += 1
@@ -166,7 +166,7 @@ class MatchReferee:
 for p in players:
     p.update_predict()
 ref = MatchReferee()
-lineups = ref.parse_lineups_positions("input.txt")
-fixtures = ref.parse_fixtures("input.txt")
+lineups = ref.parse_lineups_positions()
+fixtures = ref.parse_fixtures()
 results = ref.ref_all(fixtures, lineups, PLAYED_VARS)
 
