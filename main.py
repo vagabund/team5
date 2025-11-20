@@ -1,4 +1,5 @@
-from players import Player, players
+from parse_players import parse_input
+from players import Player
 import pandas as pd
 from constants import PLAYED_VARS
 
@@ -86,11 +87,10 @@ def rank_players(stats: dict):
 
 def pd_output(stats: dict):
     df = pd.DataFrame.from_dict(stats, orient="index")
-    df_sorted = df.sort_values(by=["points", "win_rate", "avg_diff"], ascending=False)
+    df_sorted = df.sort_values(by=["points", "win_rate", "avg_for", "avg_diff"], ascending=False)
     df_sorted = df_sorted.reset_index(names="player")
     print(df_sorted.head(15).to_string(index=True))
 
-for p in players:
-    p.update_predict()
+forty_teams, players = parse_input()
 games = round_robin(players, PLAYED_VARS)
 pd_output(games)

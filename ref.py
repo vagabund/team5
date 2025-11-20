@@ -1,12 +1,14 @@
 from pathlib import Path
 import teams
 from constants import PLAYED_VARS
-from players import players, Player
+from parse_players import parse_input
+from players import Player
 
 
 class MatchReferee:
-    def __init__(self):
-        pass
+    def __init__(self, teams, players):
+        self.teams = teams
+        self.players = players
 
     def parse_fixtures(self):
         fixtures = []
@@ -26,8 +28,8 @@ class MatchReferee:
                     continue
 
                 home, away = map(str.strip, line.split("-", 1))
-                for i in teams.teams:
-                    for j in teams.teams:
+                for i in self.teams:
+                    for j in self.teams:
                         if home == i.name and away == j.name:
                             fixtures.append((i.name, j.name))
 
@@ -62,7 +64,7 @@ class MatchReferee:
                 current_team = None
                 continue
 
-            for t in teams.teams:
+            for t in self.teams:
                 if t.name == line:
                     current_team = t.name
                     lineups[current_team] = []
@@ -81,7 +83,7 @@ class MatchReferee:
                     continue
 
                 name = line[dot + 1:lpar].strip()
-                for i in players:
+                for i in self.players:
                     if i.name == name:
                         lineups[current_team].append(i)
         return lineups
@@ -163,9 +165,8 @@ class MatchReferee:
             out_str = "-".join(str(x) for x in sorted(input_set))
             return out_str
 
-for p in players:
-    p.update_predict()
-ref = MatchReferee()
+forty_teams, players = parse_input()
+ref = MatchReferee(forty_teams, players)
 lineups = ref.parse_lineups_positions()
 fixtures = ref.parse_fixtures()
 results = ref.ref_all(fixtures, lineups, PLAYED_VARS)
