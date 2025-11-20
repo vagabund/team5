@@ -1,7 +1,5 @@
 from pathlib import Path
 import teams
-from constants import PLAYED_VARS
-from parse_players import parse_input
 from players import Player
 
 
@@ -31,7 +29,7 @@ class MatchReferee:
                 for i in self.teams:
                     for j in self.teams:
                         if home == i.name and away == j.name:
-                            fixtures.append((i.name, j.name))
+                            fixtures.append((i, j))
 
                 if len(fixtures) == 8:
                     break
@@ -93,11 +91,13 @@ class MatchReferee:
         s1, s2 = set(p1.predict), set(p2.predict)
         u1 = s1 - s2
         u2 = s2 - s1
-        return len(u1 & played), len(u2 & played), u1&played, u2&played, s1, s2
+        return len(u1 & played), len(u2 & played), u1&played, u2&played, s1, s2, s1&played, s2&played
 
     def ref_match(self, home_team: teams.Team, away_team: teams.Team, lineups: dict, played_vars: tuple):
         home_name = home_team.name if hasattr(home_team, "name") else home_team
         away_name = away_team.name if hasattr(away_team, "name") else away_team
+        home_captain = home_team.captain
+        away_captain = away_team.captain
 
         home_players = lineups.get(home_name, [])
         away_players = lineups.get(away_name, [])
@@ -113,7 +113,7 @@ class MatchReferee:
             p_home = home_players[idx]
             p_away = away_players[idx]
 
-            s_home, s_away, vars_home, vars_away, initial_home, initial_away = self.duel(p_home, p_away, played_vars)
+            s_home, s_away, vars_home, vars_away, initial_home, initial_away, overall_home, overall_away = self.duel(p_home, p_away, played_vars)
 
             if s_home > s_away:
                 home_goals += 1
@@ -127,6 +127,8 @@ class MatchReferee:
                 "away_player": p_away.name,
                 "home_vars": vars_home,
                 "away_vars": vars_away,
+                "home_overall": overall_home,
+                "away_overall": overall_away,
                 "initial_home": initial_home,
                 "initial_away": initial_away,
                 "score": (s_home, s_away),
@@ -135,6 +137,8 @@ class MatchReferee:
         result = {
             "home": home_name,
             "away": away_name,
+            "home_captain": home_captain,
+            "away_captain": away_captain,
             "home_goals": home_goals,
             "away_goals": away_goals,
             "pairs": pairs,
@@ -165,9 +169,4 @@ class MatchReferee:
             out_str = "-".join(str(x) for x in sorted(input_set))
             return out_str
 
-forty_teams, players = parse_input()
-ref = MatchReferee(forty_teams, players)
-lineups = ref.parse_lineups_positions()
-fixtures = ref.parse_fixtures()
-results = ref.ref_all(fixtures, lineups, PLAYED_VARS)
 
