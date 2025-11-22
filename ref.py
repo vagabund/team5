@@ -1,4 +1,3 @@
-from pathlib import Path
 import teams
 from parse_players import input_path
 from players import Player
