@@ -1,4 +1,6 @@
 import re
+import sys
+from pathlib import Path
 
 from players import Player
 from teams import Team
@@ -22,10 +24,25 @@ def parse_block(block: str):
         players.append(Player(name, team, predict))
     return team, players
 
+def get_input_path():
+    filename = "input.txt"
+    if getattr(sys, "frozen", False):
+        exe_path = Path(sys.argv[0]).resolve()
+        app_bundle = exe_path.parents[2] if exe_path.name != filename else exe_path.parent
+        app_folder = app_bundle.parent
+        external = app_folder / filename
+        if external.exists():
+            return external
+        else:
+            return None
+    else:
+       script_dir = Path(__file__).resolve().parent
+       return script_dir / filename
 
+input_path = get_input_path()
 
 def parse_input():
-    with open("input.txt", "r", encoding="cp1251") as f:
+    with input_path.open("r", encoding="cp1251") as f:
         content = f.read()
     raw_blocks = [b for b in content.split("\n\n") if b.strip()]
     team_blocks = raw_blocks[1:]

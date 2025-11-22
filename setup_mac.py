@@ -4,6 +4,7 @@ APP = ['main.py']
 DATA_FILES = []
 OPTIONS = {
     'argv_emulation': True,
+    'includes': ['jaraco.text', 'cmath']
 }
 
 setup(

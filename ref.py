@@ -1,5 +1,6 @@
 from pathlib import Path
 import teams
+from parse_players import input_path
 from players import Player
 
 
@@ -10,9 +11,7 @@ class MatchReferee:
 
     def parse_fixtures(self):
         fixtures = []
-        path = Path("input.txt")
-
-        with path.open("r", encoding="cp1251") as f:
+        with input_path.open("r", encoding="cp1251") as f:
             for line in f:
                 line = line.strip()
 
@@ -36,9 +35,7 @@ class MatchReferee:
         return fixtures
 
     def parse_lineups_positions(self):
-        path = Path("input.txt")
-
-        with path.open("r", encoding="cp1251") as f:
+        with input_path.open("r", encoding="cp1251") as f:
             lines = [line.rstrip() for line in f]
 
         fixtures_seen = 0

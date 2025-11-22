@@ -2,7 +2,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, PatternFill, Font, Side, Border
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.dataframe import dataframe_to_rows
-from constants import PLAYED_VARS
+from constants import PLAYED_VARS, output_path
 
 CENTER = Alignment(horizontal="center", vertical="center")
 RIGHT_ALIGN = Alignment(horizontal="right", vertical="center")
@@ -32,7 +32,7 @@ def create_xlsx(results: list, df):
         cell.font = HEADER_FONT
     ws_squad.column_dimensions["A"].width = 25
     ws_squad.column_dimensions["B"].width = 20
-    wb.save("output.xlsx")
+    wb.save(output_path / "output.xlsx")
 
 def draw_markers(ws, start_row: int = 1, start_col: int = 4):
     markers_per_row = 10
