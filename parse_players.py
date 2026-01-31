@@ -19,10 +19,22 @@ def parse_block(block: str):
             continue
         name = m.group(2).strip()
         inside = m.group(3)
-        nums = [int(x) for x in re.findall(r'\d+', inside)]
-        predict = tuple(nums)
-        players.append(Player(name, team, predict))
+        predict, predict_cups = parse_predict(inside)
+        players.append(Player(name, team, predict, predict_cups))
     return team, players
+
+def parse_predict(block: str):
+    block = block.strip()
+    if "/" in block:
+        parts = block.split("/")
+        while len(parts) < 3:
+            parts.append("")
+        t1 = tuple(int(x) for x in re.findall(r"\d+", parts[0]))
+        t2 = tuple(int(x) for x in re.findall(r"\d+", parts[1]))
+        t3 = tuple(int(x) for x in re.findall(r"\d+", parts[2]))
+        return t1, (t1, t2, t3)
+    vars = tuple(int(x) for x in re.findall(r"\d+", block))
+    return vars, (vars, (), ())
 
 def get_input_path():
     filename = "input.txt"

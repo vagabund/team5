@@ -3,10 +3,11 @@ from teams import Team
 
 
 class Player:
-    def __init__(self, name: str, team: Team, predict: tuple = ()):
+    def __init__(self, name: str, team: Team, predict: tuple = (), predict_cup: tuple = ((), (), ())):
         self.name = name
         self.team = team
         self.predict = predict
+        self.predict_cup = predict_cup
 
     def update_predict(self):
         with open("input.txt", 'r', encoding='cp1251') as f:
