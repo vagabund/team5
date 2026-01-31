@@ -80,6 +80,14 @@ class MatchReferee:
         u2 = s2 - s1
         return len(u1 & played), len(u2 & played), u1&played, u2&played, s1, s2, s1&played, s2&played
 
+    def duel_cup(self, p1: Player, p2: Player, played_vars, tier: int):
+        played = set(played_vars)
+        s1 = set(p1.predict_cup[tier])
+        s2 = set(p2.predict_cup[tier])
+        u1 = s1 - s2
+        u2 = s2 - s1
+        return len(u1 & played), len(u2 & played), (u1 & played), (u2 & played), s1, s2, (s1 & played), (s2 & played)
+
     def ref_match(self, home_team: teams.Team, away_team: teams.Team, lineups: dict, played_vars: tuple):
         home_name = home_team.name if hasattr(home_team, "name") else home_team
         away_name = away_team.name if hasattr(away_team, "name") else away_team
@@ -141,13 +149,121 @@ class MatchReferee:
 
         return result
 
+    def ref_cup_match(self, home_team: teams.Team, away_team: teams.Team, lineups: dict, played_vars: tuple):
+        home_name = home_team.name if hasattr(home_team, "name") else home_team
+        away_name = away_team.name if hasattr(away_team, "name") else away_team
+        home_captain = home_team.captain
+        away_captain = away_team.captain
+
+        home_players = lineups.get(home_name, [])
+        away_players = lineups.get(away_name, [])
+
+        n = min(len(home_players), len(away_players))
+
+        def play_tier(tier: int):
+            home_goals = 0
+            away_goals = 0
+            pairs = []
+
+            for idx in range(n):
+                p_home = home_players[idx]
+                p_away = away_players[idx]
+
+                s_home, s_away, vars_home, vars_away, initial_home, initial_away, overall_home, overall_away = \
+                    self.duel_cup(p_home, p_away, played_vars, tier)
+
+                if s_home > s_away:
+                    home_goals += 1
+                elif s_away > s_home:
+                    away_goals += 1
+
+                pairs.append({
+                    "index": idx + 1,
+                    "home_player": p_home.name,
+                    "away_player": p_away.name,
+                    "home_vars": vars_home,
+                    "away_vars": vars_away,
+                    "home_overall": overall_home,
+                    "away_overall": overall_away,
+                    "initial_home": initial_home,
+                    "initial_away": initial_away,
+                    "score": (s_home, s_away),
+                    "tier": tier,
+                })
+
+            return home_goals, away_goals, pairs
+
+        tier_results = []
+        decided = None
+
+        for tier in (0, 1, 2):
+            hg, ag, pairs = play_tier(tier)
+            tier_results.append((hg, ag))
+
+            if hg != ag:
+                decided = (tier, hg, ag, pairs)
+                break
+
+        if decided is None:
+            home_sum = sum(x for x, _ in tier_results)
+            away_sum = sum(y for _, y in tier_results)
+            if home_sum != away_sum:
+                winner = home_name if home_sum > away_sum else away_name
+            else:
+                winner = min(home_name, away_name)
+
+            result = {
+                "home": home_name,
+                "away": away_name,
+                "home_captain": home_captain,
+                "away_captain": away_captain,
+                "home_goals": home_sum,
+                "away_goals": away_sum,
+                "pairs": [],
+                "mode": "cup",
+                "tier_results": tier_results,
+                "winner": winner,
+                "note": "forced tiebreak"
+            }
+            print(f"[CUP] {home_name} — {away_name}: {home_sum}–{away_sum} (forced)")
+            return result
+
+        tier, hg, ag, pairs = decided
+        winner = home_name if hg > ag else away_name
+
+        result = {
+            "home": home_name,
+            "away": away_name,
+            "home_captain": home_captain,
+            "away_captain": away_captain,
+            "home_goals": hg,
+            "away_goals": ag,
+            "pairs": pairs,
+            "mode": "cup",
+            "tier_results": tier_results,
+            "winner": winner,
+            "decided_on_tier": tier
+        }
+
+        print(f"[CUP tier={tier}] {home_name} — {away_name}: {hg}–{ag} | winner: {winner}")
+        return result
+
     def ref_all(self, fixtures, lineups: dict, played_vars: tuple):
         results = []
-        for home, away in fixtures:
-            res = self.ref_match(home, away, lineups, played_vars)
-            results.append(res)
-            print()
-        return results
+        team_name = next(iter(lineups.keys()))
+        cup_check = lineups.get(team_name)[0].predict_cup[1]
+        if cup_check == ():
+            for home, away in fixtures:
+                res = self.ref_match(home, away, lineups, played_vars)
+                results.append(res)
+                print()
+            return results
+        else:
+            for home, away in fixtures:
+                res = self.ref_cup_match(home, away, lineups, played_vars)
+                results.append(res)
+                print()
+            return results
 
     def unpack_set(self, input_set: set):
         if len(input_set) == 0:
