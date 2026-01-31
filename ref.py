@@ -37,16 +37,7 @@ class MatchReferee:
         with input_path.open("r", encoding="cp1251") as f:
             lines = [line.rstrip() for line in f]
 
-        fixtures_seen = 0
         idx = 0
-        while idx < len(lines):
-            if "-" in lines[idx]:
-                fixtures_seen += 1
-            if fixtures_seen == 8 and lines[idx].strip() == "":
-                idx += 1
-                break
-            idx += 1
-
         lineups = {}
         current_team = None
 

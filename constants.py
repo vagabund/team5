@@ -36,4 +36,7 @@ def load_played_vars():
     numbers = line.split("-")
     return tuple(int(n) for n in numbers)
 
-PLAYED_VARS = load_played_vars()
+try:
+    PLAYED_VARS = load_played_vars()
+except ValueError:
+    PLAYED_VARS = ()
