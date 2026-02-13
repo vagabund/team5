@@ -198,7 +198,7 @@ class MatchReferee:
 
         for tier in (0, 1, 2):
             hg, ag, pairs = play_tier(tier)
-            tier_results.append((hg, ag))
+            tier_results.append((hg, ag, pairs))
 
             if hg != ag:
                 decided = (tier, hg, ag, pairs)
@@ -221,6 +221,7 @@ class MatchReferee:
                 "away_goals": away_sum,
                 "pairs": [],
                 "mode": "cup",
+                "tier": tier,
                 "tier_results": tier_results,
                 "winner": winner,
                 "note": "forced tiebreak"
